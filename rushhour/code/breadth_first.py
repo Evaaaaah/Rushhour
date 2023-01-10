@@ -1,4 +1,5 @@
 from structure import Structure
+from typing import List, Tuple
 
 class Breadth(Structure):
     def __init__(self, game: str, dim: int) -> None:
@@ -9,27 +10,23 @@ class Breadth(Structure):
         self.visited_states = {self.initial_vector}
         self.current_solution = []
     
-    def run(self):
-        # possible_moves = self.possible_moves()
-        # print(possible_moves)
+    def run(self) -> List[Tuple[str]]:
+        """Run the breadth first algorithm.
+        It will keep running untill a solution is found.
+
+        Returns:
+            List[Tuple[str]]: The solution to the puzzle.
+        """
         solution = []
 
         while not self.win():
-        # while len(solution) < 10:
             # load next from queue
-            # print(self.queue)
             vector, solution = self.queue.pop(0)
             self.set_vector(vector, solution)
-            # print(self)
-            # print(self.board)
-            # print(solution)
-            # if solution == [("A", "L"), ("A", "R")]:
-            #     print(vector)
-            #     print(self.initial_vector)
 
             # perform all possible moves
             possible_moves = self.possible_moves()
-            # print(possible_moves)
+
             for move in possible_moves:
                 # reset board
                 self.set_vector(vector, solution)
@@ -42,14 +39,23 @@ class Breadth(Structure):
                 if self.win():
                     return self.current_solution
                 
-                # if a vector already exists, don't add it to queue
+                # if a vector does not already exists, 
+                # add the new solution to the queue and the vector to the visited states
                 if not self.current_vector in self.visited_states:
-                    # else, add the new solution to the queue and the vector to the visited states
                     self.visited_states.add(self.current_vector)
                     self.queue.append((self.current_vector, self.current_solution.copy()))
-            
+        
+        return self.current_solution
 
-    def set_vector(self, vector, solution):
+    def set_vector(self, vector: str, solution: List[Tuple[str]]):
+        """Set the state of the board with a vector and a solution to this vector.
+        Note: it is not checked whether this solution leads to this state of the board.
+
+        Args:
+            vector (str): The state of the board. Should be formatted as:
+                {car1_name}.{car1_position}_{car2_name}.{car2_position}
+            solution (List[Tuple[str]]): The solution up to this point.
+        """
         car_positions = vector.split("_")
 
         assert len(car_positions) == len(self.cars)
@@ -62,7 +68,3 @@ class Breadth(Structure):
         self.current_solution = solution.copy()
 
         self.set_board()
-        # print(self.board)
-
-    def play_solution(self, solution):
-        pass

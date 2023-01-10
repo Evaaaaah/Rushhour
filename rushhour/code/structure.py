@@ -43,7 +43,21 @@ class Car():
             #     print(self.current, self.fixed, self.length)
             return [(self.current + i, self.fixed) for i in range(self.length)]
 
-    def possible_move(self, direction: str, steps: int):
+    def possible_move(self, direction: str, steps: int) -> bool:
+        """Check if a given move is possible
+
+        Args:
+            direction (str): The direction of the move. Should be U, D, L or R
+            steps (int): The number of steps of the move.
+
+        Raises:
+            ValueError: The given direction is not U, D, L or R.
+            ValueError: A horizontal car cannot move up or down.
+            ValueError: A vertical car cannot move left or right.
+
+        Returns:
+            bool: Whether the given move is possible.
+        """
         if not (direction == "U" or direction == "D" or direction == "L" or direction == "R"):
             raise ValueError(f"This is not a valid direction. Should be U, D, L or R")
 
@@ -206,14 +220,14 @@ class Structure():
         # print(self.board)
     
     def set_board(self):
-        # create a grid that keeps track of occupied spaces
+        """Create the board keeping track of occupied spaces.
+        """
         board = [[False] * self.dim] * self.dim
         self.board = np.array(board, dtype=bool)
 
         for name in self.cars:
             car = self.cars[name]
-            for pos in car.occupied_spaces():
-                self.board[pos] = True
+            self.add_to_board(car)
 
     def on_board(self, position: Tuple[int]):
         """Check if a position is within the limits of the board.
@@ -232,11 +246,20 @@ class Structure():
         return True
     
     def remove_from_board(self, car: Car):
-        # remove the car from the board
+        """Remove a car from the board keeping track of occupied spaces.
+
+        Args:
+            car (Car): The car to be removed.
+        """
         for pos in car.occupied_spaces():
             self.board[pos] = False
     
     def add_to_board(self, car: Car):
+        """Add a car to the board keeping track of occupied spaces.
+
+        Args:
+            car (Car): The car to be added.
+        """
         for pos in car.occupied_spaces():
             self.board[pos] = True
     
@@ -249,7 +272,12 @@ class Structure():
         """
         return self.red_car.current + self.red_car.length == self.dim
 
-    def possible_moves(self):
+    def possible_moves(self) -> List[Tuple[str]]:
+        """Find all possible moves for the current board.
+
+        Returns:
+            List[Tuple[str]]: The list of current moves.
+        """
         possible_moves = []
         # for each car:
         for name in self.cars:
@@ -260,13 +288,20 @@ class Structure():
         return possible_moves
 
     def move_car(self, move: Tuple[str]):
+        """Move a car in a certain direction. Must be a valid move.
+
+        Args:
+            move (Tuple[str]): The move to be performed.
+            Should be car_name, direction, number of steps
+        """
         name, direction, steps = move
         self.cars[name].move(direction, steps)
         self.set_current_vector()
     
     def set_current_vector(self):
+        """Set the vector using the current state of the board.
+        """
         self.current_vector = "_".join([name + "." + str(self.cars[name].current) for name in self.cars])
-        # print(self.current_vector)
 
     def __repr__(self) -> str:
         """Show the board in its current state.
